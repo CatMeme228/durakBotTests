@@ -1,8 +1,9 @@
 import subprocess
 import time
 
+EXE_PATH = "D:/reps/durak_offline/x64/Release/durak_offline.exe"
 OUTPUT_FILE = "results.csv"
-HEADER = "номер_теста, конфигурация, первый ход,победители,вес,козыри"
+HEADER = "номер_теста, конфигурация, первый ход, победители, вес, козыри"
 
 # 5 конфигураций: (лёгкие, сложные, метка)
 CONFIGS = [
@@ -18,20 +19,18 @@ TIMEOUT = 30
 
 
 def run_game(easy, hard):
-    # Передаём три строки: имя fst, лёгкие, сложные (кодировка UTF-16LE)
-    input_data = f"fst\n{easy}\n{hard}\n"
-    proc = subprocess.run("D:/reps/durak_offline/x64/Release/durak_offline.exe",
-        input=input_data.encode('utf-16le'),
+    input_data = f"fst\n{easy}\n{hard}\n".encode('utf-16le')
+    proc = subprocess.run(
+        [EXE_PATH],
+        input=input_data,
         capture_output=True,
         timeout=TIMEOUT
     )
     # Декодируем вывод (программа пишет в UTF-16LE)
     out = proc.stdout.decode('utf-16le', errors='replace')
-
     lines = [line.strip() for line in out.splitlines() if line.strip()]
 
-    res = lines[-1]
-    return res[18:]  # последняя строка = результат + скип мусора
+    return lines[-1][83:]  # последняя строка = результат + скип мусора
 
 
 def parse_result(line):
